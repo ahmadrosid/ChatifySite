@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\EmbeddingController;
+use App\Http\Controllers\MessageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,9 +21,6 @@ Route::get('/', function () {
     ]);
 });
 
-
-Route::get('/chat/{id}', function () {
-    return view('welcome', [
-        'source' => 'chatbot'
-    ]);
-});
+Route::post("/embedding", [EmbeddingController::class, 'store']);
+Route::post("/chat", [MessageController::class, 'store'])->name('chat.store');
+Route::get("/chat/{id}", [MessageController::class, 'index'])->name('chat.show');
