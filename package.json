@@ -12,5 +12,11 @@
         "postcss": "^8.4.23",
         "tailwindcss": "^3.3.2",
         "vite": "^4.0.0"
+    },
+    "dependencies": {
+        "rehype-stringify": "^9.0.3",
+        "remark-parse": "^10.0.2",
+        "remark-rehype": "^10.1.0",
+        "unified": "^10.1.2"
     }
 }

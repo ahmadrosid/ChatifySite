@@ -42,3 +42,12 @@
         opacity: 0.2;
     }
 }
+
+
+pre {
+	white-space: pre;
+	white-space: pre-wrap;
+	word-break: break-all;
+	word-wrap: break-word;
+    @apply p-2 bg-gray-300 text-sm rounded-md text-gray-900 my-4
+}

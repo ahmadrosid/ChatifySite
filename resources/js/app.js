@@ -18,7 +18,7 @@ const components = {
     <div class="bg-gray-100 p-2 rounded-md mr-16">
         <p class="font-medium text-blue-500 text-sm">Answer</p>
         <hr class="my-2" />
-        <p class="text-gray-800" id="{id}">{content}</p>
+        <div class="text-gray-800" id="{id}">{content}</div>
     </div>`,
 };
 
@@ -42,6 +42,21 @@ function getId(length = 6) {
     }
 
     return result;
+}
+
+async function markdownToHtml(markdownString) {
+    const { unified } = await import("unified");
+    const markdown = (await import("remark-parse")).default;
+    const remark2rehype = (await import("remark-rehype")).default;
+    const rehypeStringify = (await import("rehype-stringify")).default;
+
+    const result = await unified()
+        .use(markdown)
+        .use(remark2rehype)
+        .use(rehypeStringify)
+        .process(markdownString);
+
+    return result.value.toString();
 }
 
 function handleSubmitIndexing(form) {
@@ -136,8 +151,8 @@ function handleSubmitQuestion(form) {
                 while (true) {
                     const { value, done } = await reader.read();
                     if (done) break;
-                    text = decoder.decode(value, { stream: true });
-                    answerComponent.innerText += text;
+                    text += decoder.decode(value, { stream: true });
+                    answerComponent.innerHTML = await markdownToHtml(text);
                 }
 
                 btn.innerHTML = `Submit`;
