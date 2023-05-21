@@ -17,22 +17,33 @@
 
 <body class="antialiased">
     <section class="flex relative bg-[#f5f5f5] items-center justify-center min-h-screen">
-        <div class="relative items-center w-full px-5 mx-auto max-w-7xl md:px-12">
+        <div class="relative items-center w-full px-5 py-12 mx-auto lg:px-14 lg:py-16 max-w-7xl md:px-12">
             <div>
                 <div class="text-center">
                     <p class="w-auto"><a href="/" class="font-semibold text-[#4354ff] text-sm uppercase">ChatifySite</a></p>
-                    <p class="mt-8 text-3xl font-extrabold tracking-tight text-black md:text-5xl">
-                        Turn Websites into Intelligent<br />Chatbot Conversations
-                    </p>
                     <p class="max-w-xl mx-auto mt-4 text-base lg:text-xl text-slate-500">
-                        Transform static pages into dynamic conversations, engage users, and deliver information with a conversational touch.
+                        List conversations.
                     </p>
                 </div>
             </div>
             <div class="max-w-lg mx-auto mt-10">
                 <div class="relative flex items-start p-4 space-x-3 bg-white shadow group rounded-2xl">
                     <div class="flex-1 min-w-0">
-                        <p id="progress-text" class="text-gray-500"></p>
+                        <div>
+                            @foreach($chats as $chat)
+                            <div class="pb-6">
+                                <p class="text-gray-600 text-sm">
+                                    {{$chat->embed_collection->created_at->diffForHumans()}}
+                                </p>
+                                <p class="text-gray-800 font-medium">
+                                    <a class="hover:underline" href="{{route('chat.show', $chat->id)}}">
+                                        {{$chat->embed_collection->name}}
+                                    </a>
+                                </p>
+                            </div>
+                            @endforeach
+                            <p id="progress-text" class="text-gray-600"></p>
+                        </div>
                         <form class="flex gap-2" id="form-submit-link">
                             @csrf
                             <input placeholder="Paste any link..." class="w-full p-2 rounded-md border border-gray-600 focus:outline-none" name="link" />

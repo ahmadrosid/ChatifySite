@@ -22,11 +22,17 @@ class MessageController extends Controller
         $this->query = $query;
     }
 
-    public function index($id)
+    public function index()
+    {
+        return view('chat', [
+            'chats' => Chat::with('embed_collection')->orderBy('created_at', 'desc')->get()
+        ]);
+    }
+
+    public function show($id)
     {
         $chat = Chat::with('embed_collection')->find($id);
-        return view('welcome', [
-            'source' => 'chatbot',
+        return view('conversation', [
             'chat' => $chat,
             'embed_collection' => $chat->embed_collection->toArray(),
             'messages' => Message::query()->where('chat_id', $chat->id)->get()

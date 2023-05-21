@@ -3,12 +3,41 @@
 namespace App\Service;
 
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 use League\HTMLToMarkdown\HtmlConverter;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Scrape
 {
     public $title;
+    private $converter;
+
+    public function __construct()
+    {
+        $this->converter = new HtmlConverter(array('strip_tags' => true, 'strip_placeholder_links' => true));
+    }
+
+    private function removeHrefAttribute($htmlString)
+    {
+        $pattern = '/<a\b[^>]*\bhref\s*=\s*"[^"]*"[^>]*>/i';
+        $replacement = '<a>';
+        $result = preg_replace($pattern, $replacement, $htmlString);
+        return $result;
+    }
+
+    private function cleanHtml($htmlContent)
+    {
+        // Clean this tags: <style> <script> <span> <footer> <aside> <nav>
+        $cleanHtml = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $htmlContent);
+        $cleanHtml = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $cleanHtml);
+        $cleanHtml = preg_replace('/<picture\b[^>]*>(.*?)<\/picture>/is', '', $cleanHtml);
+        $cleanHtml = preg_replace('/<img\b[^>]*(.*?)\/>/is', '', $cleanHtml);
+        $cleanHtml = preg_replace('/<footer\b[^>]*>(.*?)<\/footer>/is', '', $cleanHtml);
+        $cleanHtml = preg_replace('/<nav\b[^>]*>(.*?)<\/nav>/is', '', $cleanHtml);
+        $cleanHtml = preg_replace('/<span[^>]*>(.*?)<\/span>/is', '$1', $cleanHtml);
+        $cleanHtml = $this->removeHrefAttribute($cleanHtml);
+        return trim($cleanHtml);
+    }
 
     public function handle($url)
     {
@@ -22,21 +51,13 @@ class Scrape
         ]);
 
         $htmlContent = $response->getBody()->getContents();
-        $dom = new Crawler($htmlContent);
+        $cleanHtml = $this->cleanHtml($htmlContent);
 
-        // Clean this tags: <style> <script> <span> <footer> <aside> <nav>
-        $cleanHtml = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $htmlContent);
-        $cleanHtml = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $htmlContent);
-        $cleanHtml = preg_replace('/<footer\b[^>]*>(.*?)<\/footer>/is', '', $cleanHtml);
-        $cleanHtml = preg_replace('/<nav\b[^>]*>(.*?)<\/nav>/is', '', $cleanHtml);
-        $cleanHtml = preg_replace('/<span[^>]*>(.*?)<\/span>/is', '$1', $cleanHtml);
+        $this->converter->getEnvironment()->addConverter(new PreTagConverter());
+        $markdownContent = $this->converter->convert($cleanHtml);
 
-
-        $converter = new HtmlConverter(array('strip_tags' => true, 'strip_placeholder_links' => true));
-        $converter->getEnvironment()->addConverter(new PreTagConverter());
-
-        $markdownContent = $converter->convert($cleanHtml);
         try {
+            $dom = new Crawler($htmlContent);
             $this->title = $dom->filter('title')->first()->text();
         } catch (\Exception $e) {
             $this->title = substr($markdownContent, 0, strpos($markdownContent, "\n"));
