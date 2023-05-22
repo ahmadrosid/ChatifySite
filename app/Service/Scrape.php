@@ -32,12 +32,19 @@ class Scrape
         $cleanHtml = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $cleanHtml);
         $cleanHtml = preg_replace('/<svg\b[^>]*>(.*?)<\/svg>/is', '', $cleanHtml);
         $cleanHtml = preg_replace('/<picture\b[^>]*>(.*?)<\/picture>/is', '', $cleanHtml);
-        $cleanHtml = preg_replace('/<img\b[^>]*(.*?)\/>/is', '', $cleanHtml);
+        $cleanHtml = preg_replace('/<form\b[^>]*>(.*?)<\/form>/is', '', $cleanHtml);
         $cleanHtml = preg_replace('/<footer\b[^>]*>(.*?)<\/footer>/is', '', $cleanHtml);
         $cleanHtml = preg_replace('/<nav\b[^>]*>(.*?)<\/nav>/is', '', $cleanHtml);
         $cleanHtml = preg_replace('/<span[^>]*>(.*?)<\/span>/is', '$1', $cleanHtml);
         $cleanHtml = $this->removeHrefAttribute($cleanHtml);
         return trim($cleanHtml);
+    }
+
+    private function reverseLTGT($input)
+    {
+        $output = str_replace('&lt;', '<', $input);
+        $output = str_replace('&gt;', '>', $output);
+        return $output;
     }
 
     public function handle($url)
@@ -56,7 +63,10 @@ class Scrape
 
         $this->converter->getEnvironment()->addConverter(new PreTagConverter());
         $markdownContent = $this->converter->convert($cleanHtml);
-
+        $markdownContent = $this->reverseLTGT($markdownContent);
+        // Usefull for debugging.
+        // Log::info($cleanHtml);
+        // Log::info($markdownContent);
         try {
             $dom = new Crawler($htmlContent);
             $this->title = $dom->filter('title')->first()->text();
