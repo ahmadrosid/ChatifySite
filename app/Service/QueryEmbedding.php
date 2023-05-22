@@ -25,14 +25,13 @@ class QueryEmbedding
 
     public function askQuestionStreamed($context, $question)
     {
-        $system_template = <<<EOT
+        $system_template = "
         Use the following pieces of context to answer the users question. 
         If you don't know the answer, just say that you don't know, don't try to make up an answer.
         ----------------
         {context}
-        EOT;
+        ";
         $system_prompt = str_replace("{context}", $context, $system_template);
-        Log::info($system_prompt);
 
         return Openai::chat()->createStreamed([
             'model' => 'gpt-3.5-turbo',
