@@ -9,7 +9,6 @@ use App\Models\Embedding;
 use App\Service\QueryEmbedding;
 use App\Service\Scrape;
 use App\Service\Tokenizer;
-use Error;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
