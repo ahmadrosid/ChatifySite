@@ -32,6 +32,7 @@ class QueryEmbedding
         {context}
         EOT;
         $system_prompt = str_replace("{context}", $context, $system_template);
+        Log::info($system_prompt);
 
         return Openai::chat()->createStreamed([
             'model' => 'gpt-3.5-turbo',
