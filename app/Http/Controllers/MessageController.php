@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ServerEvent;
 use App\Models\Chat;
-use App\Models\EmbedCollection;
 use App\Models\Message;
 use App\Service\QueryEmbedding;
 use Exception;
